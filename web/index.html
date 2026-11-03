@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RADAR: plantenresten uit Nederlandse opgravingen</title>
+  <meta name="description" content="Zoek in archeobotanisch onderzoek van RADAR: welke planten zijn waar en wanneer gevonden op Nederlandse vindplaatsen." />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <a class="skip" href="#results" data-i18n="skip">Naar de resultaten</a>
+
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="RADAR">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="7" fill="#1f4d43" />
+        <path d="M16 5c4.2 3.6 6 7.6 6 11.6 0 4.7-2.7 8.4-6 10.4-3.3-2-6-5.7-6-10.4C10 12.6 11.8 8.6 16 5z" fill="#e3b23c" />
+        <path d="M16 9.5v16.5" stroke="#1f4d43" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+      <span class="brand-text">
+        <strong>RADAR</strong>
+        <span class="brand-sub" data-i18n="brandSub">Relationele Archeobotanische Database voor Nederland</span>
+      </span>
+    </a>
+    <div class="lang-toggle" role="group" aria-label="Taal / Language">
+      <button type="button" id="lang-nl" class="lang-btn" aria-pressed="true">NL</button>
+      <button type="button" id="lang-en" class="lang-btn" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-text">
+        <h1 id="hero-title" class="sr-only" data-i18n="pageTitle">RADAR: plantenresten uit Nederlandse opgravingen</h1>
+        <p class="lead" data-i18n="heroText">Plantenresten uit archeologische opgravingen in Nederland: zaden, graan, vruchten en pollen uit meer dan 1.600 vindplaatsen. Zoek op plant, plaats of periode.</p>
+        <form id="search-form" class="searchbar" role="search">
+          <label for="q" class="sr-only" data-i18n="searchLabel">Doorzoek RADAR</label>
+          <input id="q" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="Probeer gerst, Hordeum, Zwolle of verkoold…" autocomplete="off" />
+          <button type="submit" data-i18n="searchButton">Zoeken</button>
+        </form>
+        <p class="search-hint" data-i18n="searchHint">Zoekt in plantnamen, plaatsen, perioden en literatuur. Zet een zin tussen aanhalingstekens voor een exacte zoekactie.</p>
+      </div>
+    </section>
+
+    <section class="timeline" aria-labelledby="timeline-title">
+      <div class="timeline-head">
+        <h2 id="timeline-title" data-i18n="timeTitle">Vindplaatsen door de tijd</h2>
+        <p id="timeline-selected" class="timeline-selected" role="status" aria-live="polite"></p>
+        <button type="button" id="timeline-clear" class="link-btn" data-i18n="timeClear" hidden>Hele tijdlijn</button>
+      </div>
+      <div id="timeline-chart" class="timeline-chart" aria-busy="true"></div>
+      <p class="hint timeline-hint" data-i18n="timeHint">Elke kolom is een tijdvak; de hoogte is het aantal vindplaatsen in je selectie waarvan de datering ermee overlapt. De schaal is niet lineair: de jongere perioden hebben meer, kortere kolommen. Klik of sleep om een periode te kiezen.</p>
+    </section>
+
+    <p id="selection" class="selection" role="status" aria-live="polite"></p>
+    <div id="active-filters" class="active-filters" hidden></div>
+
+    <div class="workspace">
+      <aside class="sidebar" aria-label="Filters">
+        <div class="sidebar-head">
+          <h2 data-i18n="filtersHeading">Verfijn</h2>
+          <button type="button" id="clear" class="link-btn" data-i18n="clearAll">Wis alles</button>
+        </div>
+
+        <div class="field">
+          <label for="plant" data-i18n="fieldPlant">Plant</label>
+          <input id="plant" type="text" data-i18n-placeholder="fieldPlantPlaceholder" placeholder="Nederlandse of Latijnse naam" autocomplete="off" />
+        </div>
+        <div class="facet" data-facet="beginperiode"><h3 data-i18n="facet_beginperiode">Periode</h3><div class="facet-values"></div></div>
+
+        <fieldset class="field jaar-field">
+          <legend data-i18n="jaarLegend">Jaartallen</legend>
+          <div class="jaar-inputs">
+            <label><span data-i18n="jaarVanaf">Vanaf jaar</span> <input id="vanaf" type="number" placeholder="-800" /></label>
+            <label><span data-i18n="jaarTot">Tot en met jaar</span> <input id="tot" type="number" placeholder="1500" /></label>
+          </div>
+          <select id="jaar-modus" aria-label="Overlap">
+            <option value="overlapt" data-i18n="jaarModusOverlapt">Overlapt de periode</option>
+            <option value="binnen" data-i18n="jaarModusBinnen">Valt helemaal binnen</option>
+          </select>
+          <p class="hint" data-i18n="jaarHint">Negatief is voor Christus. Vindplaatsen zonder jaartal vallen buiten dit filter.</p>
+        </fieldset>
+
+        <div class="facet" data-facet="provincie"><h3 data-i18n="facet_provincie">Provincie</h3><div class="facet-values"></div></div>
+        <div class="field">
+          <label for="plaats" data-i18n="fieldPlaats">Plaats of locatie</label>
+          <input id="plaats" type="text" data-i18n-placeholder="fieldPlaatsPlaceholder" placeholder="Bijvoorbeeld Zwolle" autocomplete="off" />
+        </div>
+        <div class="facet" data-facet="complextype"><h3 data-i18n="facet_complextype">Soort vindplaats</h3><div class="facet-values"></div></div>
+        <div class="facet" data-facet="bewaringswijze"><h3 data-i18n="facet_bewaringswijze">Bewaringswijze</h3><div class="facet-values"></div></div>
+        <div class="facet" data-facet="gebruiksplantCategorie"><h3 data-i18n="facet_gebruiksplantCategorie">Gebruiksplant</h3><div class="facet-values"></div></div>
+        <div class="facet" data-facet="familie"><h3 data-i18n="facet_familie">Plantenfamilie</h3><div class="facet-values"></div></div>
+        <div class="facet" data-facet="plantdeel"><h3 data-i18n="facet_plantdeel">Plantdeel</h3><div class="facet-values"></div></div>
+        <div class="facet" data-facet="archeoregio"><h3 data-i18n="facet_archeoregio">Archeoregio</h3><div class="facet-values"></div></div>
+
+        <details class="more-fields">
+          <summary data-i18n="moreFields">Meer zoekvelden</summary>
+          <div class="field">
+            <label for="spoor" data-i18n="fieldSpoor">Soort spoor</label>
+            <input id="spoor" type="text" data-i18n-placeholder="fieldSpoorPlaceholder" placeholder="Bijvoorbeeld waterput" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="literatuur" data-i18n="fieldLiteratuur">Literatuur</label>
+            <input id="literatuur" type="text" data-i18n-placeholder="fieldLiteratuurPlaceholder" placeholder="Auteur, titel of tijdschrift" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="nummer" data-i18n="fieldNummer">Nummer</label>
+            <input id="nummer" type="text" inputmode="numeric" data-i18n-placeholder="fieldNummerPlaceholder" placeholder="Sitenummer of Archis-waarnemingsnummer" autocomplete="off" />
+          </div>
+        </details>
+      </aside>
+
+      <section class="results-panel" aria-label="Resultaten">
+        <div class="results-head">
+          <span id="result-count" class="result-count"></span>
+          <div class="results-actions">
+            <button type="button" id="download-csv" class="ghost-btn" data-i18n="downloadCsv">CSV</button>
+            <label class="sort-label">
+              <span data-i18n="sortLabel">Sorteer op</span>
+              <select id="sort">
+                <option value="relevantie" data-i18n="sortRelevantie">Relevantie</option>
+                <option value="jaar" data-i18n="sortJaar">Oudste eerst</option>
+                <option value="plaats" data-i18n="sortPlaats">Plaats A–Z</option>
+                <option value="planten" data-i18n="sortPlanten">Meeste planten</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+        <div id="results" class="results-list" tabindex="-1"></div>
+        <nav id="pager" class="pager" aria-label="Paginering"></nav>
+      </section>
+
+      <aside class="side-right" aria-label="Kaart en planten">
+        <section class="map-panel">
+          <div class="map-head">
+            <h2 data-i18n="mapTitle">Waar zijn de resten gevonden?</h2>
+            <div class="map-actions">
+              <label class="sort-label">
+                <span data-i18n="mapResolutionLabel">Raster</span>
+                <select id="map-resolution">
+                  <option value="locaties">Brongegevens</option>
+                  <option value="1km">1 × 1 km</option>
+                  <option value="5km">5 × 5 km</option>
+                  <option value="10km">10 × 10 km</option>
+                  <option value="25km">25 × 25 km</option>
+                </select>
+              </label>
+              <button type="button" id="download-geojson" class="ghost-btn" data-i18n="downloadGeoJson">GeoJSON</button>
+            </div>
+          </div>
+          <p id="map-status" class="map-status"></p>
+          <div id="map" role="img" aria-label="Kaart van de vindplaatsen"></div>
+          <p class="hint" data-i18n="mapLegendHint">Een cirkel groepeert vindplaatsen op dezelfde locatie of in dezelfde rastercel. Klik om in te zoomen. Een groter raster is een weergavekeuze en zegt niets over de nauwkeurigheid.</p>
+        </section>
+
+        <section class="top-panel" aria-labelledby="top-title">
+          <h2 id="top-title" data-i18n="topTitle">Meest gevonden planten</h2>
+          <p class="hint" data-i18n="topHint">Klik op een plant om alleen vindplaatsen met die plant te tonen. De getallen zijn vindplaatsen.</p>
+          <ol id="top-taxa" class="top-list"></ol>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p data-i18n="footerSource">Bron: RADAR (BIAX Consult), als Linked Data gepubliceerd door de Rijksdienst voor het Cultureel Erfgoed. Een experiment.</p>
+    <p>
+      <a href="https://linkeddata.cultureelerfgoed.nl/archeobotanie/radar" target="_blank" rel="noopener" data-i18n="footerData">Gegevens</a>
+    </p>
+  </footer>
+
+  <div id="detail-panel" class="detail-overlay" hidden>
+    <div class="detail-scrim" id="detail-scrim"></div>
+    <div class="detail-panel" role="dialog" aria-modal="true" aria-labelledby="detail-title" tabindex="-1">
+      <div class="detail-head">
+        <span class="detail-kicker" data-i18n="detailKicker">Vindplaats</span>
+        <div class="detail-tools">
+          <button type="button" id="detail-copy-link" class="link-btn" data-i18n="detailCopyLink">Kopieer link</button>
+          <button id="detail-close" class="close-btn" type="button" data-i18n="detailClose">Sluiten</button>
+        </div>
+      </div>
+      <h2 id="detail-title"></h2>
+      <div id="detail-body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

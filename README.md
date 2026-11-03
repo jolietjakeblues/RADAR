@@ -24,7 +24,8 @@ worden en aan `C:\AI\elastic-ceo` gekoppeld kunnen worden.
 | Zoekprojectie (`construct/radar.rq`) | **gedaan**: één document per site, 36 velden in de namespace `radar-elastic:` (341.432 triples voor 1.630 sites; rdflib deed er 4,5 minuten over, zie hieronder). Alle documenten gecontroleerd: geen typeafwijkingen, aantallen planten en taxa gelijk aan het NDJSON. Lokaal getest met `scripts/controleer_construct.py` (zie "Zoekprojectie en Elasticsearch") |
 | Elastic-template (`triply/elastic-service.json`, gemaakt door `triply/maak-service.mjs`) | **gedaan en getest** tegen een lokale Elasticsearch 8.17.0 in Docker (`scripts/lokaal-elastic.mjs`): templates geaccepteerd, alle 36 velden met het verwachte type, zowel de 30 pilotdocumenten als alle 1.630 documenten geïndexeerd zonder fouten, alle zoekvragen gelukt |
 | Upload naar TriplyDB | dataset `archeobotanie/radar` is geladen (oudere versie, zie "Volgorde in TriplyDB") en `archeobotanie/radar-elastic` is gevuld met de projectie van die versie |
-| Service `Radar` aanmaken, zoeksite | nog niet gedaan |
+| Service `Radar` in TriplyDB | draait, 1.630 documenten (door jou aangemaakt en gecontroleerd) |
+| Zoeksite (`web/`, `server.mjs`, `wrangler.jsonc`) | **gedaan en lokaal getest**: 23 unit-tests, 30 livecontroles tegen de echte service en het SPARQL-endpoint, bekeken in de browser (desktop en mobiel, NL en EN). Nog niet online: `npx wrangler deploy` maakt de worker `radar` aan |
 | Kruislink in `elastic-ceo` (`loadRadar()`) | **gedaan, staat uit**: `web/radar.js` en `loadRadar()` in `web/app.js` (ongecommit in `C:/AI/elastic-ceo`), 8 nieuwe unit-tests (26 in totaal, alle gelukt) en getest tegen de lokale Elasticsearch met de echte RADAR-documenten. De schakelaar `RADAR_ACTIEF` blijft `false` tot de service in TriplyDB draait |
 
 ## Opnieuw draaien
@@ -45,6 +46,36 @@ python scripts/radar_to_rdf.py              # volledig
 Naast `radar_<pilot|full>.trig` en `radar_<pilot|full>_es.ndjson` (een eigen document per site, rechtstreeks uit de CSV's, handig als controle) schrijft het script
 `output/radar_conflicts.csv` (zie bevinding 1) en `output/radar_periodecodes.csv`
 (welke RADAR-periodecode op welk ABR-concept uitkomt).
+
+## Zoeksite
+
+Vanilla JS zonder framework of build-stap, zelfde opzet als de sites van BoneInfo en `elastic-ceo`: een Cloudflare Worker die alleen de statische bestanden uit `web/` serveert; de browser praat zelf met de Elasticsearch-service `Radar` en het SPARQL-endpoint van de RCE.
+
+```bash
+npm start            # http://127.0.0.1:4177
+npm test             # 23 unit-tests, zonder netwerk
+npm run test:live    # 30 controles tegen de echte service en SPARQL (alleen lezen)
+npx wrangler deploy  # zet de worker "radar" online (vereist een ingelogde wrangler)
+```
+
+De worker heet `radar` (zie `wrangler.jsonc`), dus het adres wordt `https://radar.<account>.workers.dev`. Dat is hetzelfde adres dat `elastic-ceo/web/radar.js` (`RADAR_SITE`) gebruikt voor de link vanuit de erfgoedzoeker, met `?site=<nummer>` om een vindplaats meteen te openen.
+
+**Wat de site kan**
+
+- **Tijdband.** Boven de resultaten staat een staafdiagram met 39 tijdvakken, van het Mesolithicum tot de Nieuwe tijd. De hoogte is het aantal vindplaatsen in je selectie waarvan de datering ermee overlapt. Klik of sleep over de kolommen om een periode te kiezen; de band blijft de hele selectie tonen terwijl je erin kiest. De schaal is niet lineair (jongere perioden hebben meer, kortere kolommen) en dat staat bij de band. Met het toetsenbord kies je een kolom met Enter of spatie.
+- **Zoeken.** Eén zoekbalk (voorvoegsel op het laatste woord, aanhalingstekens voor een exacte zin) en filters voor plant (Nederlandse of Latijnse naam), plaats, periode, jaartallen (overlapt of valt binnen; negatieve jaren zijn v.Chr.), provincie, soort vindplaats, bewaringswijze, gebruiksplant, plantenfamilie, plantdeel, archeoregio, soort spoor, literatuur en nummer. Actieve filters staan als verwijderbare chips boven de resultaten.
+- **Selectie.** De regel *Deze selectie heeft … vindplaatsen, … plantenwaarnemingen en … taxa* beweegt met elk filter mee.
+- **Meest gevonden planten.** Naast de kaart staat een lijst van de 15 planten die op de meeste vindplaatsen in de selectie voorkomen; een klik filtert op die plant.
+- **Kaart** (Leaflet, PDOK) met cirkels per locatie of per raster van 1, 5, 10 of 25 km.
+- **Detailpaneel** per vindplaats, rechtstreeks uit de brondataset: de planten met aantal waarnemingen, monsters, bewaringswijze (verkoold, onverkoold, gemineraliseerd, indruk) en plantdeel, met een balk en kleuren per bewaringswijze; de sporen per soort; de literatuur met link naar het rapport; en kruislinks naar het erfgoedregister (RCE) en naar BoneInfo op hetzelfde waarnemingsnummer, behalve als RADAR dat nummer onzeker noemt. Elke vindplaats heeft een deelbare URL (`?site=100`); alle filters staan ook in de URL.
+- **Export** van de huidige selectie als CSV of GeoJSON.
+- **NL en EN.** Schermteksten, bewaringswijzen, plantdelen en plantnamen wisselen mee; locatienamen, omschrijvingen en literatuur blijven Nederlands, zoals in de bron.
+
+**Eerlijk over de gegevens.** De site toont wat in de dataset staat. Voor 153 vindplaatsen ontbreken de plantenregels (het sleutelconflict in de bron, zie "Bevindingen"); zo'n vindplaats toont "Nog geen plantenwaarnemingen in de dataset" met een toelichting, niet "geen planten". Bij de planten staat dat het aantal waarnemingen niets zegt over hoeveel zaden het waren, omdat `Quantification` in RADAR niet vergelijkbaar is tussen regels.
+
+**Bestanden:** `web/index.html`, `style.css`, `app.js` (scherm), `search.js` (queries, zonder DOM), `detail.js` (SPARQL), `related.js` (kruislinks), `i18n.js` (teksten en waarden), `geo.js`, `404.html`, `_headers` (CSP: alleen de Triply-host en PDOK). `server.mjs` is de lokale server met dezelfde headers. Tests staan in `tests/`.
+
+**Voor git:** `wrangler` maakt een map `.wrangler/` aan en `npm` kan `node_modules/` maken; die staan nog niet in `.gitignore`.
 
 ## Zoekprojectie en Elasticsearch
 

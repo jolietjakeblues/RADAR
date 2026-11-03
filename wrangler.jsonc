@@ -1,0 +1,8 @@
+{
+  // Cloudflare Worker die alleen de statische bestanden uit web/ serveert (geen Worker-script).
+  // De browser praat zelf rechtstreeks met de Elasticsearch-service Radar en het SPARQL-endpoint
+  // van de RCE (api.linkeddata.cultureelerfgoed.nl). Online als https://radar.<account>.workers.dev
+  "name": "radar",
+  "compatibility_date": "2026-11-03",
+  "assets": { "directory": "./web", "not_found_handling": "404-page" }
+}
