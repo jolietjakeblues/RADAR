@@ -1,0 +1,489 @@
+@prefix rad:     <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix vann:    <http://purl.org/vocab/vann/> .
+@prefix ceo:     <https://linkeddata.cultureelerfgoed.nl/def/ceo#> .
+@prefix geo:     <http://www.opengis.net/ont/geosparql#> .
+@prefix dwc:     <http://rs.tdwg.org/dwc/terms/> .
+@prefix schema:  <https://schema.org/> .
+@prefix cht:     <https://data.cultureelerfgoed.nl/term/id/rn/2/> .
+@prefix tooi-pv: <https://identifier.overheid.nl/tooi/id/provincie/> .
+
+#################################################################
+# RADAR-vocabulaire
+#
+# Dit bestand definieert UITSLUITEND de properties en conceptschema's die
+# zelf gemunt zijn voor de RADAR-dataset (Relationele Archeobotanische
+# Database voor Nederland, BIAX Consult), omdat er geen geschikte
+# bestaande term voor bestond. Het is bewust GEEN nieuwe, volledige
+# ontologie: RADAR hergebruikt externe vocabulaires voor alle klassen en
+# voor de meeste properties. Zie "Hergebruikte vocabulaires" hieronder en
+# README.md in de hoofdmap voor het volledige model en de bevindingen in de
+# brondata.
+#
+# Zelfde opzet en dezelfde keuzes als ../BoneInfo/ontology/boneinfo.ttl, zodat
+# beide datasets samen bevraagd kunnen worden.
+#
+# Namespace: net als bij BoneInfo staan de properties voorlopig in dezelfde
+# namespace als de instanties (.../archeobotanie/id/radar/). Het ligt voor
+# de hand die, samen met BoneInfo, later naar een .../def/-namespace te
+# verhuizen (zie het open punt onderaan). Namen van namespace, dataset en
+# graph zijn voorlopig en nog niet afgestemd.
+#################################################################
+
+<https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/>
+    a owl:Ontology ;
+    dcterms:title "RADAR-vocabulaire"@nl, "RADAR vocabulary"@en ;
+    dcterms:description """Kleine aanvullende vocabulaire voor de RADAR-dataset (archeobotanische vindplaatsen, sporen, monsters, plantenvondsten, taxa en literatuur), gebruikt naast CEO, GeoSPARQL, Darwin Core, schema.org, SKOS en het Archeologisch Basisregister (ABR). Bevat alleen properties en conceptschema's waarvoor in die bestaande vocabulaires geen geschikte term bestond."""@nl ;
+    dcterms:description """Small supplementary vocabulary for the RADAR dataset (archaeobotanical sites, features, samples, plant records, taxa and literature), used alongside CEO, GeoSPARQL, Darwin Core, schema.org, SKOS and the Archaeological Basic Register (ABR). Contains only properties and concept schemes for which no suitable existing term was found."""@en ;
+    vann:preferredNamespacePrefix "rad" ;
+    vann:preferredNamespaceUri "https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/" ;
+    dcterms:source "C:\\AI\\RADAR (scripts/radar_to_rdf.py); brondata RADAR2022 2026-06-23 verstuurversie.mdb"@nl ;
+    dcterms:publisher "Rijksdienst voor het Cultureel Erfgoed (RCE)"@nl ;
+    dcterms:creator "BIAX Consult (RADAR-database); RDF-modellering RCE"@nl ;
+    owl:versionInfo "0.1.0-pilot" ;
+    dcterms:created "2026-11-03"^^xsd:date ;
+    rdfs:comment """Hergebruikte vocabulaires (niet in dit bestand gedefinieerd, alleen gebruikt als rdfs:domain/rdfs:range of als klasse van een instantie):
+- CEO (ceo:) <https://linkeddata.cultureelerfgoed.nl/def/ceo#> — ceo:Vondstlocatie en ceo:ArcheologischComplex (de RADAR-site), ceo:Grondsporen (het spoor), ceo:Vondsten (de plantenregel), ceo:Datering, ceo:BeginDatering, ceo:EindDatering, ceo:LocatieAanduiding, ceo:heeftGeometrie, ceo:heeftDatering, ceo:heeftBeginDatering, ceo:heeftEindDatering, ceo:heeftPeriode, ceo:heeftLocatieAanduiding, ceo:locatienaam, ceo:bevatObject, ceo:ligtInObject, ceo:archis2Waarnemingsnummer.
+- GeoSPARQL (geo:) <http://www.opengis.net/ont/geosparql#> — geo:Geometry, geo:asWKT (RD/EPSG:28992 geconverteerd naar WGS84).
+- Darwin Core (dwc:) <http://rs.tdwg.org/dwc/terms/> — dwc:Taxon, dwc:Occurrence, dwc:MaterialSample, dwc:scientificName, dwc:vernacularName, dwc:taxonRank, dwc:identificationQualifier, dwc:kingdom, dwc:phylum, dwc:class, dwc:order, dwc:family.
+- schema.org (schema:) <https://schema.org/> — schema:ScholarlyArticle, schema:CreativeWork, schema:Periodical, schema:about, schema:name, schema:author, schema:datePublished, schema:isPartOf, schema:pagination, schema:publisher, schema:locationCreated, schema:url, schema:addressLocality, schema:description.
+- SKOS (skos:) <http://www.w3.org/2004/02/skos/core#> — skos:Concept, skos:ConceptScheme, skos:prefLabel, skos:notation, skos:inScheme, skos:altLabel (taxonsynoniemen).
+- Archeologisch Basisregister (ABR), via de CHT-thesaurus <https://data.cultureelerfgoed.nl/term/id/rn/2/> — de periodeconcepten waar ceo:heeftPeriode naar verwijst. Dezelfde uuid als in https://data.cultureelerfgoed.nl/term/id/abr/2/.
+- TOOI <https://identifier.overheid.nl/tooi/id/provincie/> — de provincies bij rad:heeftProvincie.
+Zie README.md in de repository-hoofdmap voor het volledige veld-voor-veld-overzicht en de bevindingen in de brondata."""@nl .
+
+#################################################################
+# Lokale SKOS-conceptschema's (codelijsten uit de RADAR-database)
+#
+# Perioden staan hier NIET tussen: die verwijzen rechtstreeks naar het ABR
+# (zie rad:periodecode en rad:periodecodeGemapt).
+#################################################################
+
+rad:schema\/complextype
+    a skos:ConceptScheme ;
+    rdfs:label "RADAR complextypen"@nl, "RADAR site types"@en ;
+    rdfs:comment "Codelijst uit tabel Site_type (30 codes), bijvoorbeeld BEWV.N = dorp, BEWV.TW = terp(-nederzetting), CTHD.KLO = klooster. Een deel van de sites (176 van 1.630) heeft een oudere code die niet in deze lijst staat (NLND, NX, NS, VK, ...); die blijft alleen als rad:complextype-literal."@nl ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:complextype/BEWV.N a skos:Concept ; skos:inScheme rad:schema/complextype ; skos:notation \"BEWV.N\" ; skos:prefLabel \"dorp\"@nl ."@nl .
+
+rad:schema\/archeoregio
+    a skos:ConceptScheme ;
+    rdfs:label "Archeoregio's"@nl, "Archaeological regions"@en ;
+    rdfs:comment "Codelijst uit tabel Archeoregio (17 regio's), bijvoorbeeld 12 = Hollands veen-klei gebied, 13 = Utrechts-Gelders rivierengebied. De notatie is het Regio_ID uit de bron."@nl ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:archeoregio/13 a skos:Concept ; skos:inScheme rad:schema/archeoregio ; skos:notation \"13\" ; skos:prefLabel \"Utrechts-Gelders rivierengebied\"@nl ."@nl .
+
+rad:schema\/monstertype
+    a skos:ConceptScheme ;
+    rdfs:label "RADAR monstertypen"@nl, "RADAR sample types"@en ;
+    rdfs:comment "Codelijst uit tabel Sample_type (13 codes), bijvoorbeeld MZ0,25 = standaard zeefmonster (0,25 mm), MP = pollenmonster, MHT = houtmonster. De handleiding van 1997 gebruikt andere codes (ABA, FLOT, AFZ, ...); de codelijst in de database is leidend."@nl ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:monstertype/MZ0%2C25 a skos:Concept ; skos:inScheme rad:schema/monstertype ; skos:notation \"MZ0,25\" ; skos:prefLabel \"Standaard zeefmonster (0,25 mm\"@nl ."@nl .
+
+rad:schema\/plantdeel
+    a skos:ConceptScheme ;
+    rdfs:label "RADAR plantdelen"@nl, "RADAR plant parts"@en ;
+    rdfs:comment "Codelijst uit tabel Parts (96 codes), Engelstalig vanwege internationale standaardisatie, bijvoorbeeld see = seed s.l., frt = fruit (fragment), pol = pollen, glb = glume base. De omschrijving is Engels en heeft daarom taal 'en'."@nl ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:plantdeel/see a skos:Concept ; skos:inScheme rad:schema/plantdeel ; skos:notation \"see\" ; skos:prefLabel \"seed s.l.\"@en ."@nl .
+
+rad:schema\/bewaringswijze
+    a skos:ConceptScheme ;
+    rdfs:label "RADAR bewaringswijzen"@nl, "RADAR preservation modes"@en ;
+    rdfs:comment "Codelijst uit tabel Pres_mode (6 codes): w = onverkoold/waterlogged, c = verkoold/carbonized, m = gemineraliseerd, i = indruk (impression), s = subrecent, ? = onbekend."@nl ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:bewaringswijze/c a skos:Concept ; skos:inScheme rad:schema/bewaringswijze ; skos:notation \"c\" ; skos:prefLabel \"carbonized/verkoold\"@en ."@nl .
+
+rad:schema\/determinatieniveau
+    a skos:ConceptScheme ;
+    rdfs:label "RADAR determinatieniveaus"@nl, "RADAR identification levels"@en ;
+    rdfs:comment "Codelijst uit tabel Id_level (19 codes): sp = soort, gen = genus, fam = familie, type = type, spgrp = soortgroep, gngrp = genusgroep, en de cf-varianten (cfspc, cfgen, cffam, ...) voor onzekere determinaties. Zonder code is de determinatie op soortniveau of lager (handleiding). Bij cf-codes legt het RDF ook dwc:identificationQualifier \"cf.\" vast."@nl ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:determinatieniveau/gen a skos:Concept ; skos:inScheme rad:schema/determinatieniveau ; skos:notation \"gen\" ; skos:prefLabel \"genus\"@en ."@nl .
+
+rad:schema\/opmerkingscode
+    a skos:ConceptScheme ;
+    rdfs:label "RADAR opmerkingscodes bij plantenregels"@nl, "RADAR remark codes for plant records"@en ;
+    rdfs:comment """Codes uit de kolom Remarks van tabel PLANTS, beschreven in de RADAR-handleiding (1997). Ze zeggen hoe de waarde in rad:kwantificatie gelezen moet worden en geven annotaties bij de determinatie. De concepten staan met label in de dataset zelf (20 codes): esq = geschat aantal, esp = geschat percentage, fr% = relatieve frequentie, frq = frequentie, per = kwantificering met percentage, wei = kwantificering door gewicht, pre = slechts aanwezigheid gemeld, lar = groot aantal, sum = aantallen van meerdere monsters opgeteld, qu? = manier van kwantificeren onduidelijk, cor = correctie van gepubliceerde identificatie, eye = handvondst, id! = meer gegevens over de determinatie in de publicatie, id? = determinatie twijfelachtig volgens de RADAR-beheerder, idp = verouderde nomenclatuur in de publicatie, imp = indruk van ander deel dan zaad, pm? = conserveringswijze onzeker, pp! = meer gegevens over het plantdeel in de publicatie, pp? = plantdeel onbekend of onzeker, txt = niet in tabel weergegeven maar wel in de tekst. Codes die niet in de handleiding staan (o.a. frm, div, kno, vl%) worden als rad:opmerkingscode-literal bewaard."""@nl ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:opmerkingscode/esq a skos:Concept ; skos:inScheme rad:schema/opmerkingscode ; skos:notation \"esq\" ; skos:prefLabel \"geschat aantal\"@nl ."@nl .
+
+#################################################################
+# Properties op de site (ceo:Vondstlocatie / ceo:ArcheologischComplex)
+#################################################################
+
+rad:siteNr
+    a owl:DatatypeProperty ;
+    rdfs:label "sitenummer"@nl, "site number"@en ;
+    rdfs:comment "De interne primaire sleutel van een RADAR-site (bronveld Site nr). Altijd aanwezig, in tegenstelling tot ceo:archis2Waarnemingsnummer, dat maar bij 1.045 van de 1.630 sites is ingevuld."@nl ;
+    rdfs:domain ceo:Vondstlocatie ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:site/986 rad:siteNr 986 ."@nl .
+
+rad:biaxId
+    a owl:DatatypeProperty ;
+    rdfs:label "BIAX-identificatie"@nl, "BIAX identifier"@en ;
+    rdfs:comment "De BIAX-code van een site of een monster (bronveld BIAX_ID), bijvoorbeeld 'RBRNA-R607' voor een site en 'OOSTV-R943-M565' voor een monster. Wordt door BIAX zelf gebruikt om rapporten, sites en monsters te herkennen."@nl ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( ceo:Vondstlocatie dwc:MaterialSample ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:site/1364 rad:biaxId \"RBRNA-R607\" ."@nl .
+
+rad:archisZaaknummer
+    a owl:DatatypeProperty ;
+    rdfs:label "Archis zaaknummer"@nl, "Archis case number"@en ;
+    rdfs:comment "Het Archis-zaaknummer van het onderzoek (bronveld Archis zaaknr), een getal van 10 cijfers, bij 610 sites ingevuld. Dit is NIET hetzelfde als ceo:archis2Vondstmeldingsnummer, dat uit 6 cijfers bestaat; er is daarom bewust geen CEO-property voor gebruikt."@nl ;
+    rdfs:domain ceo:Vondstlocatie ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:site/2592 rad:archisZaaknummer \"4607153100\" ."@nl .
+
+rad:waarnemingsnummerOnzeker
+    a owl:DatatypeProperty ;
+    rdfs:label "waarnemingsnummer onzeker"@nl, "observation number uncertain"@en ;
+    rdfs:comment "True als de bron-opmerking 'ar?' vermeldt: het Archis-waarnemingsnummer (ceo:archis2Waarnemingsnummer) is dan onzeker volgens de RADAR-handleiding. Bij het koppelen aan RCE-data moet zo'n site worden overgeslagen. Komt bij 1 site voor."@nl ;
+    rdfs:domain ceo:Vondstlocatie ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:site/429 rad:waarnemingsnummerOnzeker true ."@nl .
+
+rad:belgischRapport
+    a owl:DatatypeProperty ;
+    rdfs:label "Belgisch rapport"@nl, "Belgian report"@en ;
+    rdfs:comment "True als de bron-opmerking 'BEL' vermeldt: een Belgisch rapport, volgens de handleiding niet in de tabel Plants opgenomen. Komt in de huidige data niet voor, maar de vlag is in de handleiding gedefinieerd."@nl ;
+    rdfs:domain ceo:Vondstlocatie ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:site/2 rad:belgischRapport true . (hypothetisch voorbeeld; komt in de data niet voor)"@nl .
+
+rad:coordinaatNauwkeurigheid
+    a owl:DatatypeProperty ;
+    rdfs:label "coördinaatnauwkeurigheid"@nl, "coordinate precision"@en ;
+    rdfs:comment "Nauwkeurigheid van het punt in ceo:heeftGeometrie, als tekst. Alleen gevuld ('1 km') als de bron-opmerking 'coo' vermeldt: de coördinaten komen dan van de topografische atlas, op de kilometer nauwkeurig (18 sites). Voor alle andere sites is de nauwkeurigheid niet vastgelegd."@nl ;
+    rdfs:domain ceo:Vondstlocatie ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:site/354 rad:coordinaatNauwkeurigheid \"1 km\" ."@nl .
+
+rad:dateringBron
+    a owl:DatatypeProperty ;
+    rdfs:label "herkomst datering"@nl, "dating source"@en ;
+    rdfs:comment "Waar de datering van de site vandaan komt, volgens de bron-opmerkingen: 'C14' (gebaseerd op C14-datering) of 'andere referentie' (opmerking 'dor': datering afkomstig van een andere referentie). Komt bij 5 sites voor."@nl ;
+    rdfs:domain ceo:Vondstlocatie ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:site/301 rad:dateringBron \"C14\" ."@nl .
+
+rad:complextype
+    a owl:DatatypeProperty ;
+    rdfs:label "complextype (code)"@nl, "complex type (code)"@en ;
+    rdfs:comment "De complextypecode uit de bron (bronveld Complextype), bijvoorbeeld 'BEWV.N' of de oudere codes 'NLND', 'NX'. Zie rad:heeftComplextype voor de gekoppelde conceptvariant met label, waar de code in de codelijst staat."@nl ;
+    rdfs:domain ceo:Vondstlocatie ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:site/476 rad:complextype \"BEWV.X\" ."@nl .
+
+rad:heeftComplextype
+    a owl:ObjectProperty ;
+    rdfs:label "heeft complextype"@nl, "has site type"@en ;
+    rdfs:comment "Koppelt een site aan het concept uit het schema rad:schema/complextype dat bij rad:complextype hoort, waar de code in de codelijst staat (1.454 van 1.630 sites)."@nl ;
+    rdfs:domain ceo:Vondstlocatie ;
+    rdfs:range skos:Concept ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:site/792 rad:heeftComplextype rad:complextype/BEWV.SK ."@nl .
+
+rad:provincie
+    a owl:DatatypeProperty ;
+    rdfs:label "provincie (code)"@nl, "province (code)"@en ;
+    rdfs:comment "De provinciecode van twee letters uit de bron (bronveld Prov, zoals in Archis), bijvoorbeeld 'NB' of 'ZH'. 193 sites hebben geen provincie. Zie rad:heeftProvincie voor de TOOI-conceptvariant."@nl ;
+    rdfs:domain ceo:Vondstlocatie ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:site/63 rad:provincie \"GR\" ."@nl .
+
+rad:heeftProvincie
+    a owl:ObjectProperty ;
+    rdfs:label "heeft provincie"@nl, "has province"@en ;
+    rdfs:comment "Koppelt een site aan het TOOI-provincieconcept dat overeenkomt met rad:provincie. Dezelfde TOOI-URI's als bij BoneInfo (bo:heeftProvincie). De code 'UK' (1 site, buiten Nederland) en lege waarden zijn niet gekoppeld."@nl ;
+    rdfs:domain ceo:Vondstlocatie ;
+    rdfs:range skos:Concept ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:site/610 rad:heeftProvincie tooi-pv:pv30 ."@nl .
+
+rad:heeftArcheoregio
+    a owl:ObjectProperty ;
+    rdfs:label "heeft archeoregio"@nl, "has archaeological region"@en ;
+    rdfs:comment "Koppelt een site aan de archeoregio (bronveld Regio_ID) uit rad:schema/archeoregio."@nl ;
+    rdfs:domain ceo:Vondstlocatie ;
+    rdfs:range skos:Concept ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:site/987 rad:heeftArcheoregio rad:archeoregio/11 ."@nl .
+
+#################################################################
+# Properties op de datering (ceo:BeginDatering / ceo:EindDatering)
+#################################################################
+
+rad:jaar
+    a owl:DatatypeProperty ;
+    rdfs:label "jaar"@nl, "year"@en ;
+    rdfs:comment "Het begin- of eindjaar van de datering als geheel getal; negatief voor jaren voor Chr. (bronvelden Begin date en End date). Zelfde modellering als bo:jaar in BoneInfo; de datering-keten is daarmee verkort (object, Datering, Begin/EindDatering, zonder ceo:Gebeurtenis)."@nl ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( ceo:BeginDatering ceo:EindDatering ) ] ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:begindatering/spoor775 rad:jaar 950 ."@nl .
+
+rad:periodecode
+    a owl:DatatypeProperty ;
+    rdfs:label "periodecode (origineel)"@nl, "period code (original)"@en ;
+    rdfs:comment """De periodecode zoals die in RADAR staat (bronveld Cultural period, Archis-afkortingen volgens de handleiding), bijvoorbeeld 'MELB' of 'LMEB'. Samengestelde waarden ('LMEA/B', 'IJZM/L', 'BRONSL_IJZV') zijn gesplitst; BeginDatering krijgt de eerste en EindDatering de laatste code. De bijbehorende periode staat als ceo:heeftPeriode, een verwijzing naar het ABR-concept (https://data.cultureelerfgoed.nl/term/id/rn/2/{uuid}), niet als lokaal concept. Codes die op geen enkel ABR-concept uitkomen (8 verschillende: PREROM, LMED, LMEC, ROMBB, MERV, RT, ?? en ????) houden alleen deze literal."""@nl ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( ceo:BeginDatering ceo:EindDatering ) ] ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:begindatering/site100 rad:periodecode \"LMEB\" ; ceo:heeftPeriode cht:2c559d8a-4b5e-4a53-a556-b4e2e7d7dd9d ; rad:periodecodeGemapt true ."@nl .
+
+rad:periodecodeGemapt
+    a owl:DatatypeProperty ;
+    rdfs:label "periodecode gemapt"@nl, "period code mapped"@en ;
+    rdfs:comment """True als rad:periodecode niet zelf een ABR-code is maar daarop is gemapt. Twee soorten: (1) oude Archis-codes die niet meer in het ABR voorkomen en op de hernoemde ABR-code zijn gemapt: LMEA -> MELA, LMEB -> MELB, LME -> MEL, VMEA/B/C/D -> MEVA/B/C/D, VME -> MEV, XME -> ME, NTA -> NTV, NTB -> NTM, NTC -> NTL; (2) 14 typefouten en varianten die de gegevenseigenaar met de hand van een ABR-label heeft voorzien (o.a. IJT -> IJZ, MBT -> BRONSM, VIJT -> IJZV, MRLB -> MELB, VEMB -> MEVB, MELV -> MEV). De mapping van de oude Archis-codes rust op de namen ('Late Middeleeuwen A/B', 'Nieuwe Tijd A/B/C') en is getoetst aan de mediane begin- en eindjaren van de RADAR-sites per code. Nog te bevestigen door BIAX/RCE; wie de mapping niet vertrouwt, kan met deze vlag filteren."""@nl ;
+    rdfs:domain [ a owl:Class ; owl:unionOf ( ceo:BeginDatering ceo:EindDatering ) ] ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:einddatering/site240 rad:periodecode \"VMED\" ; ceo:heeftPeriode cht:533f6881-7c2d-49fc-bce6-71a839558c0f ; rad:periodecodeGemapt true ."@nl .
+
+#################################################################
+# Properties op het spoor (ceo:Grondsporen)
+#################################################################
+
+rad:spoorcode
+    a owl:DatatypeProperty ;
+    rdfs:label "spoorcode"@nl, "feature code"@en ;
+    rdfs:comment "De code van het spoor binnen de site zoals die in het onderzoek is gebruikt (bronveld Feature code), bijvoorbeeld 'Pes-184'. Niet uniek over sites heen."@nl ;
+    rdfs:domain ceo:Grondsporen ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:spoor/5820 rad:spoorcode \"HAPLA-1154\" ."@nl .
+
+rad:soortSpoor
+    a owl:DatatypeProperty ;
+    rdfs:label "soort spoor"@nl, "feature type"@en ;
+    rdfs:comment "Het soort spoor als vrije tekst uit de bron (bronveld Feature type), bijvoorbeeld 'kuil', 'paalkuil', 'waterput', 'beerput'. Niet gekoppeld aan een ABR-thesaurusterm; de waarden zijn niet genormaliseerd (hoofdletters wisselen)."@nl ;
+    rdfs:domain ceo:Grondsporen ;
+    rdfs:range rdf:langString ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:spoor/5820 rad:soortSpoor \"kuil\"@nl ."@nl .
+
+rad:lokaleFase
+    a owl:DatatypeProperty ;
+    rdfs:label "lokale fase"@nl, "local phase"@en ;
+    rdfs:comment "De fase binnen de site waarin het spoor valt (bronveld Local phase), voor relatieve datering ten opzichte van andere sporen van dezelfde vindplaats. Bij 1.141 sporen ingevuld."@nl ;
+    rdfs:domain ceo:Grondsporen ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:spoor/1868 rad:lokaleFase \"fase 1\" ."@nl .
+
+#################################################################
+# Properties op het monster (dwc:MaterialSample)
+#################################################################
+
+rad:monstercode
+    a owl:DatatypeProperty ;
+    rdfs:label "monstercode"@nl, "sample code"@en ;
+    rdfs:comment "De monstercode (bronveld Sample code), bijvoorbeeld 'SLOOS-239'. Niet uniek in de bron (131 codes komen meer dan eens voor); het monster wordt geïdentificeerd door het Sample nr in de URI (rad:monster/{Sample nr})."@nl ;
+    rdfs:domain dwc:MaterialSample ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:monster/3325 rad:monstercode \"Cas-1/1/51\" ."@nl .
+
+rad:heeftMonstertype
+    a owl:ObjectProperty ;
+    rdfs:label "heeft monstertype"@nl, "has sample type"@en ;
+    rdfs:comment "Koppelt een monster aan het concept uit rad:schema/monstertype (bronveld Sample type)."@nl ;
+    rdfs:domain dwc:MaterialSample ;
+    rdfs:range skos:Concept ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:monster/1661 rad:heeftMonstertype rad:monstertype/MZFLOT ."@nl .
+
+rad:monstertype
+    a owl:DatatypeProperty ;
+    rdfs:label "monstertype (code)"@nl, "sample type (code)"@en ;
+    rdfs:comment "Vangnet: de monstertypecode als literal als die niet in de codelijst staat. Komt in de huidige data niet voor."@nl ;
+    rdfs:domain dwc:MaterialSample ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:monster/1 rad:monstertype \"XYZ\" . (hypothetisch voorbeeld; komt in de data niet voor)"@nl .
+
+rad:monstervolume
+    a owl:DatatypeProperty ;
+    rdfs:label "monstervolume"@nl, "sample volume"@en ;
+    rdfs:comment "Volume of gewicht van het monster als tekst met eenheid (bronveld Sample volume), bijvoorbeeld '5 l' of '0,2 l'. Volgens de handleiding g = gram en l = liter. Niet omgezet naar een getal, omdat de eenheid en de schrijfwijze (decimale komma) in de bron wisselen."@nl ;
+    rdfs:domain dwc:MaterialSample ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:monster/2204 rad:monstervolume \"3 l\" ."@nl .
+
+#################################################################
+# Properties op de plantenregel (dwc:Occurrence / ceo:Vondsten)
+#################################################################
+
+rad:heeftTaxon
+    a owl:ObjectProperty ;
+    rdfs:label "heeft taxon"@nl, "has taxon"@en ;
+    rdfs:comment "Koppelt een plantenregel (dwc:Occurrence) aan het taxon (dwc:Taxon) dat is gevonden. Darwin Core definieert geen objectrelatie tussen Occurrence en Taxon, omdat de termen voor platte Darwin Core Archives zijn ontworpen; dit is dezelfde keuze als bo:heeftTaxon in BoneInfo. Het taxon kan ook een groep zijn, met een naam met '|' (bijvoorbeeld 'Carex otrubae|Carex vulpina'). Liefst voor beide datasets één gezamenlijke property (zie open punt)."@nl ;
+    rdfs:domain dwc:Occurrence ;
+    rdfs:range dwc:Taxon ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:waarneming/6191_6 rad:heeftTaxon rad:taxon/Carex%20otrubae%7CCarex%20vulpina ."@nl .
+
+rad:heeftDeterminatieniveau
+    a owl:ObjectProperty ;
+    rdfs:label "heeft determinatieniveau"@nl, "has identification level"@en ;
+    rdfs:comment "Het niveau waarop de plant is gedetermineerd (bronveld Id_level), uit rad:schema/determinatieniveau. Ontbreekt de code in de bron, dan is de determinatie op soortniveau of lager (handleiding) en is er ook geen concept."@nl ;
+    rdfs:domain dwc:Occurrence ;
+    rdfs:range skos:Concept ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:waarneming/20415_4 rad:heeftDeterminatieniveau rad:determinatieniveau/gen ."@nl .
+
+rad:heeftPlantdeel
+    a owl:ObjectProperty ;
+    rdfs:label "heeft plantdeel"@nl, "has plant part"@en ;
+    rdfs:comment "Het bewaard gebleven plantdeel (bronveld Part preserved), uit rad:schema/plantdeel. Voor 190.069 van de 229.828 regels is dat 'see' (zaad s.l.)."@nl ;
+    rdfs:domain dwc:Occurrence ;
+    rdfs:range skos:Concept ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:waarneming/3827_10 rad:heeftPlantdeel rad:plantdeel/see ."@nl .
+
+rad:plantdeel
+    a owl:DatatypeProperty ;
+    rdfs:label "plantdeel (code)"@nl, "plant part (code)"@en ;
+    rdfs:comment "Vangnet: de plantdeelcode als literal als die niet in de codelijst staat."@nl ;
+    rdfs:domain dwc:Occurrence ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:waarneming/1_1 rad:plantdeel \"xyz\" . (hypothetisch voorbeeld; komt vrijwel niet voor)"@nl .
+
+rad:heeftBewaringswijze
+    a owl:ObjectProperty ;
+    rdfs:label "heeft bewaringswijze"@nl, "has preservation mode"@en ;
+    rdfs:comment "De wijze waarop het plantenresten bewaard zijn gebleven (bronveld Pres mode), uit rad:schema/bewaringswijze: onverkoold (waterlogged), verkoold, gemineraliseerd, indruk, subrecent of onbekend."@nl ;
+    rdfs:domain dwc:Occurrence ;
+    rdfs:range skos:Concept ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:waarneming/7439_30 rad:heeftBewaringswijze rad:bewaringswijze/w ."@nl .
+
+rad:kwantificatie
+    a owl:DatatypeProperty ;
+    rdfs:label "kwantificatie"@nl, "quantification"@en ;
+    rdfs:comment """De kwantitatieve waarde van de plantenregel (bronveld Quantification), als geheel getal. LET OP: de betekenis hangt af van rad:heeftOpmerkingscode. Bij 'esq' is het een geschat aantal, bij 'per' een percentage, bij 'wei' een gewicht, bij 'pre' alleen aanwezigheid (waarde 1). Zonder code is het een telling. Waarden zijn daarom niet over regels heen vergelijkbaar of op te tellen zonder die code. Rapporten zonder kwantitatieve gegevens hebben waarde 1 voor elk taxon (handleiding)."""@nl ;
+    rdfs:domain dwc:Occurrence ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:waarneming/7650_6 rad:kwantificatie 5 ; rad:minAantal 1 ; rad:maxAantal 10 ; rad:heeftOpmerkingscode rad:opmerkingscode/esq ."@nl .
+
+rad:minAantal
+    a owl:DatatypeProperty ;
+    rdfs:label "minimum aantal"@nl, "minimum count"@en ;
+    rdfs:comment "Ondergrens van het geschatte aantal (bronveld Min_numb), alleen gevuld bij een geschatte hoeveelheid (35.318 regels)."@nl ;
+    rdfs:domain dwc:Occurrence ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:waarneming/5730_10 rad:minAantal 1 ."@nl .
+
+rad:maxAantal
+    a owl:DatatypeProperty ;
+    rdfs:label "maximum aantal"@nl, "maximum count"@en ;
+    rdfs:comment "Bovengrens van het geschatte aantal (bronveld Max_numb), alleen gevuld bij een geschatte hoeveelheid (35.318 regels)."@nl ;
+    rdfs:domain dwc:Occurrence ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:waarneming/20353_47 rad:maxAantal 10 ."@nl .
+
+rad:heeftOpmerkingscode
+    a owl:ObjectProperty ;
+    rdfs:label "heeft opmerkingscode"@nl, "has remark code"@en ;
+    rdfs:comment "Koppelt een plantenregel aan een code uit rad:schema/opmerkingscode (bronveld Remarks). Een regel kan meerdere codes hebben. Zie rad:kwantificatie voor het belang van deze codes."@nl ;
+    rdfs:domain dwc:Occurrence ;
+    rdfs:range skos:Concept ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:waarneming/7650_6 rad:heeftOpmerkingscode rad:opmerkingscode/esq ."@nl .
+
+rad:opmerkingscode
+    a owl:DatatypeProperty ;
+    rdfs:label "opmerkingscode (onbekend)"@nl, "remark code (unknown)"@en ;
+    rdfs:comment "Vangnet: een code uit Remarks die niet in de RADAR-handleiding staat (o.a. 'frm' met 235 regels, 'div', 'kno', 'vl%'; 282 regels in totaal). De betekenis moet door BIAX worden bevestigd."@nl ;
+    rdfs:domain dwc:Occurrence ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:waarneming/20417_4 rad:opmerkingscode \"sch\" ."@nl .
+
+#################################################################
+# Properties op het taxon (dwc:Taxon)
+#################################################################
+
+rad:nummercode
+    a owl:DatatypeProperty ;
+    rdfs:label "taxon-nummercode"@nl, "taxon number code"@en ;
+    rdfs:comment "De nummercode van het taxon in de RADAR-taxonlijst (bronveld Nummer_code), waarmee de taxonomie (dwc:kingdom tot dwc:family) uit de tabel 'Taxa thesaurus ArnoldsvdM' is opgezocht. Gevuld bij 1.760 van de 1.791 gebruikte taxa. De taxon-URI zelf is de naam (rad:taxon/{naam}), niet dit nummer."@nl ;
+    rdfs:domain dwc:Taxon ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:taxon/Dipsacus%20pilosus rad:nummercode \"411\" ."@nl .
+
+rad:gebruiksplant
+    a owl:DatatypeProperty ;
+    rdfs:label "gebruiksplant (code)"@nl, "useful plant (code)"@en ;
+    rdfs:comment "Code uit de kolom Gebruiksplant van de taxonlijst, een combinatie van letters: j (waarschijnlijk 'ja, gebruiksplant'), h (houtig), s (struik), l (liaan), bijvoorbeeld 'hj'. Afgeleid van de kolomnaam van de thesaurus ('Gebruiksplant/Houtig/Struik/Liaan'); de betekenis staat niet in de handleiding en moet worden bevestigd. Bij 368 taxa gevuld."@nl ;
+    rdfs:domain dwc:Taxon ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:taxon/Cocos%20nucifera rad:gebruiksplant \"hj\" ."@nl .
+
+rad:gebruiksplantCategorie
+    a owl:DatatypeProperty ;
+    rdfs:label "categorie gebruiksplant"@nl, "useful plant category"@en ;
+    rdfs:comment "Categorie van de gebruiksplant uit de taxonomielijst (bronveld Categorie gebruiksplant): fruit, groente, kruid_specerij, meelvrucht, noot, peulvrucht, sierplant, olieplant, verfplant, nijverheid, medicinaal. De bron scheidt meerdere categorieën met '|' (bijvoorbeeld 'sierplant|fruit'); in het RDF krijgt elke categorie een eigen triple. Bij 286 taxa gevuld."@nl ;
+    rdfs:domain dwc:Taxon ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:taxon/Prunus%20domestica rad:gebruiksplantCategorie \"fruit\" ."@nl .
+
+#################################################################
+# Properties op de publicatie (schema:ScholarlyArticle / schema:CreativeWork)
+#################################################################
+
+rad:deel
+    a owl:DatatypeProperty ;
+    rdfs:label "deel"@nl, "volume or part"@en ;
+    rdfs:comment "Deel, aflevering of jaargang van het tijdschrift of de reeks (bronveld Deel) als tekst, bijvoorbeeld een nummer bij BIAXiaal of een jaargang. Niet op schema:volumeNumber geforceerd, omdat de inhoud in de bron wisselt."@nl ;
+    rdfs:domain schema:CreativeWork ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:publicatie/20057 rad:deel \"3133\" ."@nl .
+
+rad:onderzoeksinstantie
+    a owl:DatatypeProperty ;
+    rdfs:label "onderzoeksinstantie"@nl, "research institution"@en ;
+    rdfs:comment "De instantie die het archeobotanisch onderzoek uitvoerde (bronveld Onderzoeksinstantie), bijvoorbeeld 'BIAX Consult' of 'BIAX Consult, Zaandam'. Platte tekststring; geen naamdisambiguatie uitgevoerd."@nl ;
+    rdfs:domain schema:CreativeWork ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/> ;
+    skos:example "rad:publicatie/732 rad:onderzoeksinstantie \"BIAX Consult, Zaandam\" ."@nl .
+
+#################################################################
+# Opmerkingen over het model
+#################################################################
+
+<https://linkeddata.cultureelerfgoed.nl/archeobotanie/id/radar/>
+    rdfs:seeAlso <https://linkeddata.cultureelerfgoed.nl/archeozoologie/id/boneinfo/> ;
+    skos:note """Open punten (zie ook README.md):
+1. Namespace: de properties naar een aparte .../def/-namespace verhuizen, samen met BoneInfo (bo:), dat dezelfde wens heeft (BoneInfo TODO.md, punt 2).
+2. rad:heeftTaxon en bo:heeftTaxon: één gezamenlijke property voor beide datasets, of een bestaande term.
+3. Sleutelconflict in PLANTS: 13% van de plantenregels (blok van 1.180 Sample nrs) heeft een BIAX_ID dat naar een ander monster wijst dan Sample nr. Die regels zijn niet in het RDF opgenomen (output/radar_conflicts.csv). Pas als BIAX de juiste koppeling bevestigt, kan dit blok erbij.
+4. rad:periodecodeGemapt: bevestiging van de mapping van oude Archis-periodecodes op het ABR.
+5. Betekenis van rad:gebruiksplant (j/h/s/l) en van de opmerkingscodes die niet in de handleiding staan (frm, div, kno, vl%).
+6. Datering-keten: net als bij BoneInfo verkort (zonder ceo:Gebeurtenis)."""@nl .
