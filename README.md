@@ -210,7 +210,7 @@ Het blijft een "zelfde nummer"-koppeling, geen `owl:sameAs`. `Archis zaaknr` (10
 ## Open punten
 
 - BIAX/RCE: akkoord op publicatie van de verstuurversie, uitsluitsel over het sleutelconflict (bevinding 1) en bevestiging van de mapping van oude Archis-periodecodes.
-- Namen van dataset en namespace (`archeobotanie/radar` is voorlopig).
+- Namen van dataset en namespace (`archeobotanie/radar` is voorlopig): de vragen aan de LDV-beheerder, de ontologiebeheerders en BIAX staan in [docs/afstemming-namen.md](docs/afstemming-namen.md).
 - Upload naar TriplyDB, de service `Radar` aanmaken en daarna `RADAR_ACTIEF` in `elastic-ceo/web/radar.js` op `true` zetten; een RADAR-zoeksite (`RADAR_SITE`) bestaat nog niet.
 - `rad:heeftTaxon`: zelfde open vraag als `bo:heeftTaxon` in BoneInfo; liefst voor beide datasets dezelfde keuze maken.
 - Taxa van RADAR en BoneInfo gezamenlijk modelleren (`dwc:Taxon`) is mogelijk, maar niet gedaan.
